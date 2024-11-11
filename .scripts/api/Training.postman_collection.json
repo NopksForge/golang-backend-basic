@@ -1,11 +1,33 @@
 {
 	"info": {
-		"_postman_id": "cf6d49f5-0344-4aab-bed9-b538a6cbf84b",
+		"_postman_id": "50c2a7ff-7109-42e5-817e-6698ec00e1c7",
 		"name": "Training",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2872612"
+		"_exporter_id": "31625670"
 	},
 	"item": [
+		{
+			"name": "Get Product",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/product/01931961-daff-7ce8-bef5-6830082a93c8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"product",
+						"01931961-daff-7ce8-bef5-6830082a93c8"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Save Product",
 			"request": {
@@ -51,7 +73,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/v1/product/019286ed-2322-75b8-a4b5-4d6da8c1caa5",
+					"raw": "http://localhost:8080/api/v1/product/01931992-9587-7217-843d-f0e3268005b7",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -61,7 +83,7 @@
 						"api",
 						"v1",
 						"product",
-						"019286ed-2322-75b8-a4b5-4d6da8c1caa5"
+						"01931992-9587-7217-843d-f0e3268005b7"
 					]
 				}
 			},
@@ -73,7 +95,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/v1/product/019286ea-23e3-79e3-a52a-1f9738727d3e",
+					"raw": "http://localhost:8080/api/v1/product/01931992-9587-7217-843d-f0e3268005b7",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -83,19 +105,19 @@
 						"api",
 						"v1",
 						"product",
-						"019286ea-23e3-79e3-a52a-1f9738727d3e"
+						"01931992-9587-7217-843d-f0e3268005b7"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Get Product",
+			"name": "Get User",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/v1/product/019286ed-2322-75b8-a4b5-4d6da8c1caa5",
+					"raw": "http://localhost:8080/api/v1/user/01931a1d-5397-7128-8e42-0067ef330422",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -104,8 +126,91 @@
 					"path": [
 						"api",
 						"v1",
-						"product",
-						"019286ed-2322-75b8-a4b5-4d6da8c1caa5"
+						"user",
+						"01931a1d-5397-7128-8e42-0067ef330422"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Arm\",\n    \"userEmail\": \"Noppasan.arm@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Ravensia\",\n    \"userEmail\": \"Ravensiath@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/01931a1d-5397-7128-8e42-0067ef330422",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"01931a1d-5397-7128-8e42-0067ef330422"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/01931a1d-5397-7128-8e42-0067ef330422",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"01931a1d-5397-7128-8e42-0067ef330422"
 					]
 				}
 			},
