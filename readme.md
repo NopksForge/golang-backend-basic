@@ -1,4 +1,13 @@
 # Training Exercise 🎯
+## Setup 🛠
+1. Start Docker containers:
+```bash
+make docker-up
+```
+2. Start API:
+```bash
+make api
+```
 
 ## API Exercise - User CRUD Implementation 🚀
 
