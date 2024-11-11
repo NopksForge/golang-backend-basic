@@ -1,5 +1,7 @@
 package exercise
 
+import "time"
+
 // Ex02 /* ให้ return slice of product ตามโครงสร้าง json ดังนี้
 //
 //	[{
@@ -36,5 +38,44 @@ package exercise
 //
 // */
 func Ex02() []Product {
-	return []Product{}
+	now := time.Now()
+	price1 := 15.00
+	price2 := 15.50
+	sarah := "Sarah"
+
+	return []Product{
+		{
+			ProductId:    1111,
+			ProductCode:  "COKE",
+			ProductName:  "Coca cola",
+			ProductPrice: &price1,
+			ProductUnit:  "CAN",
+			CreatedBy:    "Josh",
+			CreatedAt:    now,
+			UpdatedBy:    &sarah,
+			UpdatedAt:    &now,
+		},
+		{
+			ProductId:    2222,
+			ProductCode:  "PEPSI",
+			ProductName:  "Pepsi",
+			ProductPrice: &price2,
+			ProductUnit:  "BOTTOM",
+			CreatedBy:    "John",
+			CreatedAt:    now,
+			UpdatedBy:    nil,
+			UpdatedAt:    nil,
+		},
+		{
+			ProductId:    3333,
+			ProductCode:  "SPRITE",
+			ProductName:  "Sprite",
+			ProductPrice: nil,
+			ProductUnit:  "GLASS",
+			CreatedBy:    "Peter",
+			CreatedAt:    now,
+			UpdatedBy:    nil,
+			UpdatedAt:    nil,
+		},
+	}
 }
