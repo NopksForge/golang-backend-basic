@@ -6,9 +6,9 @@ import (
 )
 
 type User struct {
-	userId    uuid.UUID
-	userEmail string
-	userName  string
+	UserId    uuid.UUID
+	UserEmail string
+	UserName  string
 	CreatedBy string
 	CreatedAt time.Time
 	UpdatedBy *string

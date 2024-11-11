@@ -49,3 +49,4 @@ redis:
 gen-mock:
 	find . -name "mock.go" -type f -delete
 	mockgen -destination app/product/mock.go -package=product training/app/product Repository
+	mockgen -destination app/user/mock.go -package=user training/app/user Repository

@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 	"training/app/product"
+	"training/app/user"
 	"training/logger"
 	"training/redis"
 
@@ -113,6 +114,14 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 		productService := product.NewService(productRepository)
 		productHandler := product.NewHandler(productService)
 		productHandler.InitEndpoints(productRouter)
+	}
+
+	userRouter := apiV1Router.Group("/user")
+	{
+		userRepository := user.NewRepository(db, redisClient)
+		userService := user.NewService(userRepository)
+		userHandler := user.NewHandler(userService)
+		userHandler.InitEndpoints(userRouter)
 	}
 
 	// add more handler here below. advice: use group using {} for better readability

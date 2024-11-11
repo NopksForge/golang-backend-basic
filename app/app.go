@@ -7,4 +7,5 @@ const (
 	forwardCtxKey ctxKey = "forwarding"
 
 	RedisProductKey string = "product"
+	RedisUserKey    string = "user"
 )
