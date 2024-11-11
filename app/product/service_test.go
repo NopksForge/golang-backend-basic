@@ -3,12 +3,13 @@ package product_test
 import (
 	"context"
 	"errors"
-	"github.com/go-playground/assert/v2"
-	"github.com/google/uuid"
-	"go.uber.org/mock/gomock"
 	"testing"
 	"training/app/product"
 	"training/persistence"
+
+	"github.com/go-playground/assert/v2"
+	"github.com/google/uuid"
+	"go.uber.org/mock/gomock"
 )
 
 func TestServiceDelete(t *testing.T) {
@@ -35,7 +36,6 @@ func TestServiceDelete(t *testing.T) {
 			ctx := context.Background()
 			ctrl := gomock.NewController(t)
 			repositoryMock := product.NewMockRepository(ctrl)
-
 			repositoryMock.EXPECT().Delete(ctx, gomock.Eq(tt.productId)).Return(tt.repositoryErr).Times(1)
 
 			s := product.NewService(repositoryMock)
