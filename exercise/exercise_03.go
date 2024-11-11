@@ -1,5 +1,7 @@
 package exercise
 
+import "time"
+
 // Ex03 /* ให้ return slice of order ตามโครงสร้าง json ดังนี้
 //
 //	[{
@@ -36,5 +38,43 @@ package exercise
 //
 // */
 func Ex03() []Order {
-	return []Order{}
+	now := time.Now()
+	price1 := 15.00
+	price2 := 15.50
+	sarah := "Sarah"
+
+	return []Order{
+		{
+			OrderId: 12345,
+			OrderNo: "ORD0001",
+			ProductList: []Product{
+				{
+					ProductId:    1111,
+					ProductCode:  "COKE",
+					ProductName:  "Coca cola",
+					ProductPrice: &price1,
+					ProductUnit:  "CAN",
+					CreatedBy:    "Josh",
+					CreatedAt:    now,
+					UpdatedBy:    &sarah,
+					UpdatedAt:    &now,
+				},
+				{
+					ProductId:    2222,
+					ProductCode:  "PEPSI",
+					ProductName:  "Pepsi",
+					ProductPrice: &price2,
+					ProductUnit:  "BOTTOM",
+					CreatedBy:    "John",
+					CreatedAt:    now,
+					UpdatedBy:    nil,
+					UpdatedAt:    nil,
+				},
+			},
+			CreatedBy: "Tony",
+			CreatedAt: now,
+			UpdatedBy: nil,
+			UpdatedAt: nil,
+		},
+	}
 }
