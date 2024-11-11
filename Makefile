@@ -9,8 +9,8 @@ docker-down:
 
 .PHONY: docker-restart
 docker-restart:
-	make server-down
-	make server-up
+	make docker-down
+	make docker-up
 
 .PHONY: init-test
 init-test:
