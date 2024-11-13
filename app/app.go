@@ -8,4 +8,6 @@ const (
 
 	RedisProductKey string = "product"
 	RedisUserKey    string = "user"
+
+	KafkaTopicUserCreation string = "user-creation"
 )

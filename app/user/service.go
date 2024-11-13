@@ -26,19 +26,22 @@ func NewService(repository Repository) Service {
 }
 
 func (s *service) Save(ctx context.Context, payload SaveUserPayload) (*SaveUserDto, error) {
-	user, err := s.repository.Insert(ctx, persistence.User{
+
+	userId := uuid.Must(uuid.NewV7())
+	if err := s.repository.InsertToKafka(persistence.User{
+		UserId:    userId,
 		UserEmail: payload.UserEmail,
 		UserName:  payload.UserName,
 		CreatedBy: "ADMIN",
 		CreatedAt: time.Now(),
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 	return &SaveUserDto{
-		UserId:    user.UserId,
-		UserEmail: user.UserEmail,
-		UserName:  user.UserName,
+		UserId:    userId,
+		UserEmail: payload.UserEmail,
+		UserName:  payload.UserName,
+		Msg:       "submitted user successfully",
 	}, nil
 }
 

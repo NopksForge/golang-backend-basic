@@ -6,10 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 	"training/app"
 	"training/persistence"
 
+	"github.com/IBM/sarama"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,25 +19,34 @@ import (
 )
 
 type Repository interface {
-	Insert(ctx context.Context, model persistence.User) (*persistence.User, error)
+	InsertToDB(ctx context.Context, model persistence.User) (*persistence.User, error)
+	InsertToKafka(model persistence.User) error
 	Update(ctx context.Context, model persistence.User) error
 	Delete(ctx context.Context, userId uuid.UUID) error
 	SelectById(ctx context.Context, userId uuid.UUID) (*persistence.User, error)
 }
 
 type repository struct {
-	db    *pgxpool.Pool
-	redis redis.UniversalClient
+	db            *pgxpool.Pool
+	redis         redis.UniversalClient
+	kafkaProducer sarama.SyncProducer
 }
 
-func NewRepository(db *pgxpool.Pool, redis redis.UniversalClient) Repository {
+type NewRepositoryCfg struct {
+	Db            *pgxpool.Pool
+	Redis         redis.UniversalClient
+	KafkaProducer sarama.SyncProducer
+}
+
+func NewRepository(cfg NewRepositoryCfg) Repository {
 	return &repository{
-		db:    db,
-		redis: redis,
+		db:            cfg.Db,
+		redis:         cfg.Redis,
+		kafkaProducer: cfg.KafkaProducer,
 	}
 }
 
-func (r *repository) Insert(ctx context.Context, user persistence.User) (*persistence.User, error) {
+func (r *repository) InsertToDB(ctx context.Context, user persistence.User) (*persistence.User, error) {
 	user.UserId = uuid.Must(uuid.NewV7())
 
 	_, err := r.db.Exec(ctx,
@@ -47,6 +58,25 @@ func (r *repository) Insert(ctx context.Context, user persistence.User) (*persis
 		user.CreatedAt,
 	)
 	return &user, err
+}
+
+func (r *repository) InsertToKafka(user persistence.User) error {
+	userBytes, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	msg := sarama.ProducerMessage{
+		Topic: app.KafkaTopicUserCreation,
+		Value: sarama.ByteEncoder(userBytes),
+	}
+
+	partition, offset, err := r.kafkaProducer.SendMessage(&msg)
+	if err != nil {
+		return err
+	}
+	slog.Info(fmt.Sprintf("partition: %d, offset: %d", partition, offset))
+	return nil
 }
 
 func (r *repository) Update(ctx context.Context, user persistence.User) error {

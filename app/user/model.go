@@ -16,6 +16,7 @@ type SaveUserDto struct {
 	UserId    uuid.UUID
 	UserEmail string
 	UserName  string
+	Msg       string
 }
 
 type UpdateUserRequest struct {

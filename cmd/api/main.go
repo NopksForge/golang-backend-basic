@@ -22,6 +22,7 @@ import (
 	"training/config"
 	"training/database"
 
+	"github.com/IBM/sarama"
 	"github.com/gin-gonic/gin"
 
 	_ "embed"
@@ -105,6 +106,13 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 
 	apiV1Router := r.Group("/api/v1")
 
+	// kafka
+	kafkaServer := []string{"localhost:9092"}
+	kafkaProducer, err := sarama.NewSyncProducer(kafkaServer, nil)
+	if err != nil {
+		panic(err)
+	}
+
 	db := database.NewPostgresDB(cfg.Database.PostgresURL)
 	redisClient := redis.New(cfg.Database.RedisURL, "")
 
@@ -118,7 +126,11 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 
 	userRouter := apiV1Router.Group("/user")
 	{
-		userRepository := user.NewRepository(db, redisClient)
+		userRepository := user.NewRepository(user.NewRepositoryCfg{
+			Db:            db,
+			Redis:         redisClient,
+			KafkaProducer: kafkaProducer,
+		})
 		userService := user.NewService(userRepository)
 		userHandler := user.NewHandler(userService)
 		userHandler.InitEndpoints(userRouter)
@@ -129,6 +141,7 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 	return r, func() {
 		db.Close()
 		redisClient.Close()
+		kafkaProducer.Close()
 	}
 }
 
