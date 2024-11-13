@@ -56,19 +56,33 @@ func (mr *MockRepositoryMockRecorder) Delete(ctx, userId any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), ctx, userId)
 }
 
-// Insert mocks base method.
-func (m *MockRepository) Insert(ctx context.Context, model persistence.User) (*persistence.User, error) {
+// InsertToDB mocks base method.
+func (m *MockRepository) InsertToDB(ctx context.Context, model persistence.User) (*persistence.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", ctx, model)
+	ret := m.ctrl.Call(m, "InsertToDB", ctx, model)
 	ret0, _ := ret[0].(*persistence.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Insert indicates an expected call of Insert.
-func (mr *MockRepositoryMockRecorder) Insert(ctx, model any) *gomock.Call {
+// InsertToDB indicates an expected call of InsertToDB.
+func (mr *MockRepositoryMockRecorder) InsertToDB(ctx, model any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), ctx, model)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertToDB", reflect.TypeOf((*MockRepository)(nil).InsertToDB), ctx, model)
+}
+
+// InsertToKafka mocks base method.
+func (m *MockRepository) InsertToKafka(model persistence.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertToKafka", model)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// InsertToKafka indicates an expected call of InsertToKafka.
+func (mr *MockRepositoryMockRecorder) InsertToKafka(model any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertToKafka", reflect.TypeOf((*MockRepository)(nil).InsertToKafka), model)
 }
 
 // SelectById mocks base method.

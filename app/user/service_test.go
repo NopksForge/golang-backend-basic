@@ -5,7 +5,9 @@ import (
 	"errors"
 	"testing"
 	"training/app/user"
-	"training/persistence"
+	persistence "training/persistence"
+
+	"github.com/IBM/sarama"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
@@ -37,8 +39,8 @@ func TestServiceDelete(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			repositoryMock := user.NewMockRepository(ctrl)
 			repositoryMock.EXPECT().Delete(ctx, gomock.Eq(tt.userId)).Return(tt.repositoryErr).Times(1)
-
-			s := user.NewService(repositoryMock)
+			consumerMock, _ := sarama.NewConsumer(nil, nil)
+			s := user.NewService(repositoryMock, consumerMock)
 			err := s.Delete(ctx, tt.userId)
 
 			assert.Equal(t, tt.expectedErr, err)
@@ -79,7 +81,8 @@ func TestServiceGetById(t *testing.T) {
 
 			repositoryMock.EXPECT().SelectById(ctx, gomock.Eq(tt.userId)).Return(tt.user, tt.repositoryErr).Times(1)
 
-			s := user.NewService(repositoryMock)
+			consumerMock, _ := sarama.NewConsumer(nil, nil)
+			s := user.NewService(repositoryMock, consumerMock)
 			got, err := s.GetById(ctx, tt.userId)
 
 			assert.Equal(t, tt.expectedUser, got)
@@ -102,7 +105,9 @@ func TestServiceSave(t *testing.T) {
 			&persistence.User{},
 			nil,
 			user.SaveUserPayload{},
-			&user.SaveUserDto{},
+			&user.SaveUserDto{
+				Msg: "submitted user successfully",
+			},
 			nil,
 		}, {
 			"2",
@@ -119,13 +124,19 @@ func TestServiceSave(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			repositoryMock := user.NewMockRepository(ctrl)
 
-			repositoryMock.EXPECT().Insert(ctx, gomock.Any()).Return(tt.user, tt.repositoryErr).Times(1)
+			repositoryMock.EXPECT().InsertToKafka(gomock.Any()).Return(tt.repositoryErr).Times(1)
 
-			s := user.NewService(repositoryMock)
+			consumerMock, _ := sarama.NewConsumer(nil, nil)
+			s := user.NewService(repositoryMock, consumerMock)
 			got, err := s.Save(ctx, tt.payload)
 
-			assert.Equal(t, tt.expectedUser, got)
 			assert.Equal(t, tt.expectedErr, err)
+			if tt.expectedUser != nil {
+				assert.Equal(t, tt.payload.UserEmail, got.UserEmail)
+				assert.Equal(t, tt.payload.UserName, got.UserName)
+				assert.Equal(t, tt.expectedUser.Msg, got.Msg)
+				assert.NotEqual(t, uuid.Nil, got.UserId)
+			}
 		})
 	}
 }
@@ -157,7 +168,8 @@ func TestServiceUpdate(t *testing.T) {
 
 			repositoryMock.EXPECT().Update(ctx, gomock.Any()).Return(tt.repositoryErr).Times(1)
 
-			s := user.NewService(repositoryMock)
+			consumerMock, _ := sarama.NewConsumer(nil, nil)
+			s := user.NewService(repositoryMock, consumerMock)
 			err := s.Update(ctx, tt.payload)
 
 			assert.Equal(t, tt.expectedErr, err)
