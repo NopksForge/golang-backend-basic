@@ -12,11 +12,12 @@ make api
 ## API Exercise - User CRUD Implementation 🚀
 
 I have implemented a complete CRUD API for user management with:
-- Full unit tests for the service layer
+- Unit tests for the service layer
 - Redis caching implementation
 - Error handling
 - Input validation
 - Clean architecture separation (handler, service, repository)
+- Kafka event publishing for user creation events
 
 Key files:
 - Handler: `app/user/handler.go`
