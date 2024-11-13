@@ -112,10 +112,15 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 	if err != nil {
 		panic(err)
 	}
+	kafkaConsumer, err := sarama.NewConsumer(kafkaServer, nil)
+	if err != nil {
+		panic(err)
+	}
 
 	db := database.NewPostgresDB(cfg.Database.PostgresURL)
 	redisClient := redis.New(cfg.Database.RedisURL, "")
 
+	// app/product
 	productRouter := apiV1Router.Group("/product")
 	{
 		productRepository := product.NewRepository(db, redisClient)
@@ -124,6 +129,7 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 		productHandler.InitEndpoints(productRouter)
 	}
 
+	// app/user
 	userRouter := apiV1Router.Group("/user")
 	{
 		userRepository := user.NewRepository(user.NewRepositoryCfg{
@@ -131,17 +137,19 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 			Redis:         redisClient,
 			KafkaProducer: kafkaProducer,
 		})
-		userService := user.NewService(userRepository)
+		userService := user.NewService(userRepository, kafkaConsumer)
 		userHandler := user.NewHandler(userService)
 		userHandler.InitEndpoints(userRouter)
+
+		if err := userService.ConsumeUserCreation(context.Background()); err != nil {
+			panic(err)
+		}
 	}
-
-	// add more handler here below. advice: use group using {} for better readability
-
 	return r, func() {
 		db.Close()
 		redisClient.Close()
 		kafkaProducer.Close()
+		kafkaConsumer.Close()
 	}
 }
 
