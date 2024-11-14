@@ -12,7 +12,7 @@ make api
 ## API Exercise - User CRUD Implementation 🚀
 
 I have implemented a complete CRUD API for user management with:
-- Unit tests for the service layer
+- Full unit tests for the service layer
 - Redis caching implementation
 - Error handling
 - Input validation
