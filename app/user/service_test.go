@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 	"training/app/user"
 	persistence "training/persistence"
-
-	"github.com/IBM/sarama"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
@@ -39,8 +38,7 @@ func TestServiceDelete(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			repositoryMock := user.NewMockRepository(ctrl)
 			repositoryMock.EXPECT().Delete(ctx, gomock.Eq(tt.userId)).Return(tt.repositoryErr).Times(1)
-			consumerMock, _ := sarama.NewConsumer(nil, nil)
-			s := user.NewService(repositoryMock, consumerMock)
+			s := user.NewService(repositoryMock)
 			err := s.Delete(ctx, tt.userId)
 
 			assert.Equal(t, tt.expectedErr, err)
@@ -81,8 +79,7 @@ func TestServiceGetById(t *testing.T) {
 
 			repositoryMock.EXPECT().SelectById(ctx, gomock.Eq(tt.userId)).Return(tt.user, tt.repositoryErr).Times(1)
 
-			consumerMock, _ := sarama.NewConsumer(nil, nil)
-			s := user.NewService(repositoryMock, consumerMock)
+			s := user.NewService(repositoryMock)
 			got, err := s.GetById(ctx, tt.userId)
 
 			assert.Equal(t, tt.expectedUser, got)
@@ -126,8 +123,7 @@ func TestServiceSave(t *testing.T) {
 
 			repositoryMock.EXPECT().InsertToKafka(gomock.Any()).Return(tt.repositoryErr).Times(1)
 
-			consumerMock, _ := sarama.NewConsumer(nil, nil)
-			s := user.NewService(repositoryMock, consumerMock)
+			s := user.NewService(repositoryMock)
 			got, err := s.Save(ctx, tt.payload)
 
 			assert.Equal(t, tt.expectedErr, err)
@@ -168,9 +164,55 @@ func TestServiceUpdate(t *testing.T) {
 
 			repositoryMock.EXPECT().Update(ctx, gomock.Any()).Return(tt.repositoryErr).Times(1)
 
-			consumerMock, _ := sarama.NewConsumer(nil, nil)
-			s := user.NewService(repositoryMock, consumerMock)
+			s := user.NewService(repositoryMock)
 			err := s.Update(ctx, tt.payload)
+
+			assert.Equal(t, tt.expectedErr, err)
+		})
+	}
+}
+
+func TestServiceConsumeUserCreation(t *testing.T) {
+	tests := []struct {
+		name          string
+		user          persistence.User
+		repositoryErr error
+		expectedErr   error
+	}{
+		{
+			name: "successful user creation consumption",
+			user: persistence.User{
+				UserId:    uuid.New(),
+				UserEmail: "test@example.com",
+				UserName:  "Test User",
+				CreatedBy: "ADMIN",
+				CreatedAt: time.Now(),
+			},
+			repositoryErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name: "repository error",
+			user: persistence.User{
+				UserId:    uuid.New(),
+				UserName:  "Test User",
+				UserEmail: "test@example.com",
+			},
+			repositoryErr: errors.New("repository error"),
+			expectedErr:   errors.New("repository error"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ctrl := gomock.NewController(t)
+			repositoryMock := user.NewMockRepository(ctrl)
+
+			repositoryMock.EXPECT().InsertToDB(ctx, gomock.Eq(tt.user)).Return(nil, tt.repositoryErr).Times(1)
+
+			s := user.NewService(repositoryMock)
+			err := s.ConsumeUserCreation(ctx, tt.user)
 
 			assert.Equal(t, tt.expectedErr, err)
 		})

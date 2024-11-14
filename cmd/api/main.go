@@ -85,6 +85,8 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
+	ctx := &gin.Context{}
+
 	if config.IsDevEnv() {
 		r.Use(gin.Logger())
 	}
@@ -137,13 +139,20 @@ func router(cfg config.Config) (*gin.Engine, func()) {
 			Redis:         redisClient,
 			KafkaProducer: kafkaProducer,
 		})
-		userService := user.NewService(userRepository, kafkaConsumer)
+		userService := user.NewService(userRepository)
 		userHandler := user.NewHandler(userService)
 		userHandler.InitEndpoints(userRouter)
 
-		if err := userService.ConsumeUserCreation(context.Background()); err != nil {
+		partitionConsumer, err := kafkaConsumer.ConsumePartition(app.KafkaTopicUserCreation, 0, sarama.OffsetNewest)
+		if err != nil {
 			panic(err)
 		}
+
+		go func() {
+			for {
+				userHandler.ConsumeUserCreation(ctx, <-partitionConsumer.Messages())
+			}
+		}()
 	}
 	return r, func() {
 		db.Close()

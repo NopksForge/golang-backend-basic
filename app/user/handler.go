@@ -1,11 +1,15 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"training/app"
+	persistence "training/persistence"
 	"training/validator"
 
+	"github.com/IBM/sarama"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -135,4 +139,19 @@ func (h *Handler) Delete(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+func (h *Handler) ConsumeUserCreation(c *gin.Context, msg *sarama.ConsumerMessage) {
+	var user persistence.User
+	if err := json.Unmarshal(msg.Value, &user); err != nil {
+		slog.Error("Failed to unmarshal user", "error", err)
+		return
+	}
+
+	if err := h.service.ConsumeUserCreation(c, user); err != nil {
+		slog.Error("Failed to insert user", "error", err)
+		return
+	}
+	slog.Info("Successfully inserted user", "userID", user.UserId)
+	return
 }
